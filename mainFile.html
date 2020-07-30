@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script lang="javascript" src="xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- <script src="https://bundle.run/xlsx@latest?name=XLSX"></script> -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<h1> Welcome to ___ Club! </h1>
+</body>
+
+<div class="hero">
+    <div class="form-box">
+        <h1>ClubAssist</h1>
+        <!--<div class="button-box">
+            <div id="btn"></div>
+            <button type="button" class="toggle-btn" onclick="markAttendance()">Submit</button>
+        </div>-->
+        <br>
+        <br>
+        <form id="form1" class="form-inline" action="/action-page.php">
+            <!--<label>Name: </label>-->
+            <p style="font-family:sans-serif;">Name:
+            <p>
+                <input id="name" name="name" class="input-field" placeholder="Full Name" type="text">
+                <br>
+                <br>
+                <!--<label>Email: </label>-->
+            <p style="font-family:sans-serif;">Email:
+            <p>
+                <input id="email" name="email" class="input-field" placeholder="Valid Email" type="text">
+                <br>
+                <br>
+                <input id="date" type="date" class="input-field" placeholder="Date" required>
+
+            <div class="button-box">
+                <div id="btn"></div>
+                <button type="button" class="toggle-btn" onclick="markAttendance()">Submit</button>
+            </div>
+
+            <br>
+            <br>
+            <center><h2>ADMIN</h2></center>
+            <br>
+            <!--<p style="text-indent: 60px;">-->
+            Password: <input id="pass" type="password" name="password" class="input-field" placeholder="Password" required>
+        
+            <input type="file" id="filedata" name="files[]" value="Upload an Exisitng Spreadsheet">
+            <input type="button" id="compile" class="btn btn-primary" onclick="compileSpreadsheet()" value="Compile Spreadsheet">
+            <input type="button" id="viewnames" class="btn btn-primary" onclick="listNames()" value="View Names">
+            
+            <div class="button-box2">
+                <div id="btn2"></div>
+                <button type="button" class="toggle-btn" onclick="checkPass()">Submit</button>
+            </div>
+            
+            
+            <!--</p>-->
+        </form>
+
+        <!--<script lang="javascript" src="xlsx.full.min.js"></script>-->
+
+        <script>
+        document.getElementById("filedata").style.display = "none";
+        document.getElementById("compile").style.display = "none";
+        document.getElementById("viewnames").style.display = "none";
+        var wb = XLSX.utils.book_new(); // will be the inputted workbook
+        var ws;
+        var inputDate;
+        document.getElementById("date").addEventListener("change", function() {
+            inputDate = this.value;
+            // var dateAndTime = new Date(input);
+        });
+        var ws_name = "ClubAssist";
+        var topArray = ["Name", "Email"];
+        var ws_data = [topArray];
+        var password = "clubAssist123";
+
+        function markAttendance(){
+            var nameInput = document.getElementById("name").value;
+            var emailInput = document.getElementById("email").value;
+
+            if(nameInput == "" || emailInput == "" || emailInput.indexOf("@") == -1 || inputDate == undefined) {
+                alert("Please correctly fill in the required fields.");
+                return;
+            }
+
+            var emailRow = -1;
+             for (var R = 1; R < ws_data.length; R++){
+                  if (ws_data[R][1] == emailInput){
+                    emailRow = R;
+                  }
+              }
+            console.log(ws_data);
+
+            if(emailRow == -1){
+                emailRow = ws_data.length;
+                ws_data.push([nameInput, emailInput]);
+            }
+
+                var todayColumn = 0;
+                if (topArray.indexOf(inputDate) != -1){
+                    todayColumn = topArray.indexOf(inputDate);
+                }
+                else {
+                    topArray.push(inputDate);
+                    ws_data[0] = topArray;
+                    todayColumn = topArray.length - 1;
+                }
+                console.log(emailRow + " " + todayColumn);
+                ws_data[emailRow][todayColumn] = "X";
+                console.log(ws_data);
+                document.getElementById("form1").reset();
+                alert("Congratulations " + nameInput + ", you've been added!");
+        }
+
+        var num = 1;
+        function compileSpreadsheet(){
+            if (ws_data.length == 1){
+                alert("No sign-ins yet!");
+            }
+            else {
+                ws = XLSX.utils.aoa_to_sheet(ws_data);
+                XLSX.utils.book_append_sheet(wb, ws, ws_name);
+                XLSX.writeFile(wb, 'out.xlsb');
+                ws_name = "ClubAssist";
+                ws_name += num;
+                num++;
+                alert("Download prompted!")
+            }
+        }
+
+        function listNames(){
+            var names = "";
+            for (var R = 1; R < ws_data.length - 1; R++){
+                names += ws_data[R][0] + ", ";
+             }
+            names += ws_data[ws_data.length - 1][0];
+            alert("Here are the existing members of this club:  " + names);
+        }
+
+        function handleFile(e) {
+          var file = document.getElementById("file");
+          var files = e.target.files, f = files[0];
+          //alert(f);
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, {type: 'array'});
+            var worksheet = workbook.Sheets[ws_name];
+
+            var desired_cell = worksheet['A1'];
+            var range = XLSX.utils.decode_range(worksheet['!ref']);
+
+            for (var R = 1; R <= range.e.r; R++){
+                  var date_cell = {c:1, r:R};
+                  var email_ref = XLSX.utils.encode_cell(date_cell);
+              }
+
+            // ----------------------- ADDS THE DATES ---------------------- //
+            if (range.e.c > 1){
+                for(var C = 0; C <= range.e.c; C++){
+                  var date_cell = {c:C, r:0};
+                  var date_ref = XLSX.utils.encode_cell(date_cell);
+                  ws_data[0][C] = worksheet[date_ref].v;
+                }
+                alert("Sheet uploaded!");
+              }
+
+            // ------------------------ ADDS NAMES & ATTENDANCE -------------------- //
+            var tempArray = [];
+            for(var R = 1; R <= range.e.r; ++R) {
+              var name_cell = {c:0, r:R};
+              var email_cell = {c: 1, r:R};
+              var name_ref = XLSX.utils.encode_cell(name_cell);
+              var email_ref = XLSX.utils.encode_cell(email_cell);
+              tempArray[0] = worksheet[name_ref].v;
+              tempArray[1] = worksheet[email_ref].v;
+              if (range.e.c > 1){
+                for(var C = 2; C <= range.e.c; C++){
+                  var att_cell = {c:C, r:R};
+                  var att_ref = XLSX.utils.encode_cell(att_cell);
+                  //alert(att_ref);
+                  //alert(worksheet[att_ref]);
+                  if(worksheet[att_ref]){
+                    tempArray[C] = worksheet[att_ref].v;
+                  }
+                }
+              }
+              ws_data.push(tempArray);
+              tempArray = [];
+            }
+
+            console.log(ws_data);
+          };
+          reader.readAsArrayBuffer(f);
+
+    }
+    document.getElementById('filedata').addEventListener('change', handleFile, false);
+
+        </script>
