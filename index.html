@@ -125,17 +125,19 @@
                 var todayColumn = 0;
                 if (topArray.indexOf(inputDate) != -1){
                     todayColumn = topArray.indexOf(inputDate);
+                    alert("Congratulations " + nameInput + ", you've been added!");                    
                 }
                 else {
                     topArray.push(inputDate);
                     ws_data[0] = topArray;
                     todayColumn = topArray.length - 1;
+                    alert("Congratulations " + nameInput + ", you've logged in!");
                 }
                 console.log(emailRow + " " + todayColumn);
                 ws_data[emailRow][todayColumn] = "X";
                 console.log(ws_data);
                 document.getElementById("form1").reset();
-                alert("Congratulations " + nameInput + ", you've been added!");
+                
         }
 
         var num = 1;
