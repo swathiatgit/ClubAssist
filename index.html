@@ -6,27 +6,21 @@
     <!-- <script src="https://bundle.run/xlsx@latest?name=XLSX"></script> -->
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-<body>
-<h1> Welcome to ___ Club! </h1>
-</body>
 
 <div class="hero">
+  <h1>
+  Welcome to ___ Club!
+  </h1>
     <div class="form-box">
         <h1>ClubAssist</h1>
-        <!--<div class="button-box">
-            <div id="btn"></div>
-            <button type="button" class="toggle-btn" onclick="markAttendance()">Submit</button>
-        </div>-->
         <br>
         <br>
         <form id="form1" class="form-inline" action="/action-page.php">
-            <!--<label>Name: </label>-->
             <p style="font-family:sans-serif;">Name:
             <p>
                 <input id="name" name="name" class="input-field" placeholder="Full Name" type="text">
                 <br>
                 <br>
-                <!--<label>Email: </label>-->
             <p style="font-family:sans-serif;">Email:
             <p>
                 <input id="email" name="email" class="input-field" placeholder="Valid Email" type="text">
@@ -43,28 +37,25 @@
             <br>
             <center><h2>ADMIN</h2></center>
             <br>
-            <!--<p style="text-indent: 60px;">-->
-            Password: <input id="pass" type="password" name="password" class="input-field" placeholder="Password" required>
-        
-            <input type="file" id="filedata" name="files[]" value="Upload an Exisitng Spreadsheet">
-            <input type="button" id="compile" class="btn btn-primary" onclick="compileSpreadsheet()" value="Compile Spreadsheet">
-            <input type="button" id="viewnames" class="btn btn-primary" onclick="listNames()" value="View Names">
+            <p style="text-indent: 0px;">
+            <input id="pass" type="password" name="password" class="input-field" placeholder="Please enter admin password" required>
+
+            <input type="file" id="filedata" class = "button-box5" name="files[]" value="Upload an Exisitng Spreadsheet">
+            <input type="button" id="compile" class="button-box3" onclick="compileSpreadsheet()" value="Compile Spreadsheet">
+            <input type="button" id="viewnames" class="button-box3" onclick="listNames()" value="View Names">
+            <button type="button" id = "hideAdmin" class="button-box4" onclick="hide()">Hide Admin Controls</button>
             
             <div class="button-box2">
-                <div id="btn2"></div>
-                <button type="button" class="toggle-btn" onclick="checkPass()">Submit</button>
+                <div id="sub2"></div>
+                <button type="button" id="adminSubmit" class="toggle-btn" onclick="checkPass()">Submit</button>
             </div>
-            
-            
-            <!--</p>-->
         </form>
-
-        <!--<script lang="javascript" src="xlsx.full.min.js"></script>-->
 
         <script>
         document.getElementById("filedata").style.display = "none";
         document.getElementById("compile").style.display = "none";
         document.getElementById("viewnames").style.display = "none";
+        document.getElementById("hideAdmin").style.display = "none";
         var wb = XLSX.utils.book_new(); // will be the inputted workbook
         var ws;
         var inputDate;
@@ -75,15 +66,47 @@
         var ws_name = "ClubAssist";
         var topArray = ["Name", "Email"];
         var ws_data = [topArray];
-        var password = "clubAssist123";
+        var password = "1";
 
+        // -------- CHECK FOR ADMIN SETTINGS -----------------
+        function checkPass(){
+            var enteredPassword = document.getElementById("pass").value;
+            
+            if (enteredPassword.indexOf(password) == 0 && enteredPassword.length == password.length){
+                document.getElementById("filedata").style.display = "block";
+                document.getElementById("compile").style.display = "block";
+                document.getElementById("viewnames").style.display = "block";
+                document.getElementById("hideAdmin").style.display = "block";
+                document.getElementById("adminSubmit").style.display = "none";
+                document.getElementById("pass").style.display = "none";
+            }
+            else {
+              alert("Sorry wrong password!");
+            }
+            document.getElementById("pass").value = null;
+        }
+        
+        function hide(){
+            document.getElementById("filedata").style.display = "none";
+            document.getElementById("compile").style.display = "none";
+            document.getElementById("viewnames").style.display = "none";
+            document.getElementById("hideAdmin").style.display = "none";
+            document.getElementById("pass").style.display = "block";
+            document.getElementById("adminSubmit").style.display = "block";
+        }
+
+        // --------------- TAKING ATTENDANCE -------------------
         function markAttendance(){
             var nameInput = document.getElementById("name").value;
             var emailInput = document.getElementById("email").value;
 
-            if(nameInput == "" || emailInput == "" || emailInput.indexOf("@") == -1 || inputDate == undefined) {
-                alert("Please correctly fill in the required fields.");
-                return;
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            var emailCheck = emailPattern.test(emailInput);
+            
+            if(nameInput == "" || emailInput == "" || emailCheck == false || inputDate == undefined) {
+              if(nameInput == "" || emailInput == "" || emailInput.indexOf("@") == -1 || inputDate == undefined) {
+                  alert("Please correctly fill in the required fields.");
+              }
             }
 
             var emailRow = -1;
@@ -137,7 +160,13 @@
                 names += ws_data[R][0] + ", ";
              }
             names += ws_data[ws_data.length - 1][0];
-            alert("Here are the existing members of this club:  " + names);
+
+            if (names.indexOf("Names") == -1){
+              alert("Here are the existing members of this club:  " + names);
+            }
+            else{
+              alert("No sign-ins yet!");
+            }
         }
 
         function handleFile(e) {
@@ -199,4 +228,8 @@
     }
     document.getElementById('filedata').addEventListener('change', handleFile, false);
 
-        </script>
+    window.onbeforeunload = e => {
+     var dialogText = 'Do you really want to leave this site?';
+      e.returnValue = dialogText;
+     return dialogText;}
+</script>
