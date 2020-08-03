@@ -61,7 +61,6 @@
         var inputDate;
         document.getElementById("date").addEventListener("change", function() {
             inputDate = this.value;
-            // var dateAndTime = new Date(input);
         });
         var ws_name = "ClubAssist";
         var topArray = ["Name", "Email"];
@@ -174,7 +173,6 @@
         function handleFile(e) {
           var file = document.getElementById("file");
           var files = e.target.files, f = files[0];
-          //alert(f);
           var reader = new FileReader();
           reader.onload = function(e) {
             var data = new Uint8Array(e.target.result);
@@ -212,8 +210,6 @@
                 for(var C = 2; C <= range.e.c; C++){
                   var att_cell = {c:C, r:R};
                   var att_ref = XLSX.utils.encode_cell(att_cell);
-                  //alert(att_ref);
-                  //alert(worksheet[att_ref]);
                   if(worksheet[att_ref]){
                     tempArray[C] = worksheet[att_ref].v;
                   }
